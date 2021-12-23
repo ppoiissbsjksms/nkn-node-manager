@@ -1,0 +1,8 @@
+### Send POST request with json body
+POST http://127.0.0.1:8080/wallet
+Content-Type: application/json
+
+{
+  "keystore": "key1",
+  "password": "pass1"
+}
