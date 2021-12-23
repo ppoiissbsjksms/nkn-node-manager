@@ -1,4 +1,4 @@
-module nkn-pool
+module nkn-node-manager
 
 go 1.16
 

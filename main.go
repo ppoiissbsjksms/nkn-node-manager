@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"nkn-pool/controllers"
-	"nkn-pool/models"
+	"nkn-node-manager/controllers"
+	"nkn-node-manager/models"
 )
 
 func main() {

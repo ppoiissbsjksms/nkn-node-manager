@@ -7,7 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"nkn-pool/models"
+	"nkn-node-manager/models"
 	"strings"
 
 	"github.com/gin-gonic/gin"

@@ -1,1 +1,3 @@
-# nkn-pool
+# nkn-node-manager
+
+TG group:
