@@ -1,3 +1,3 @@
 # nkn-node-manager
 
-TG group:
+TG group: https://t.me/nknnodemanager
