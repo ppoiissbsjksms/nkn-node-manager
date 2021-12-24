@@ -4,10 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"nkn-node-manager/controllers"
 	"nkn-node-manager/models"
+	"nkn-node-manager/utils"
 )
 
 func main() {
 
+	go utils.CheckOffline()
 	r := gin.Default()
 
 	models.ConnectDatabase() // new
@@ -18,5 +20,5 @@ func main() {
 	r.GET("/generateid/:address", controllers.FindWallet)
 	r.GET("/wallet/", controllers.FindIdleWallet)
 
-	r.Run()
+	r.Run("0.0.0.0:30050")
 }
