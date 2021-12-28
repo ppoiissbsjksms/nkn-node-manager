@@ -9,16 +9,19 @@ import (
 
 func main() {
 
-	go utils.CheckOffline()
 	r := gin.Default()
 
 	models.ConnectDatabase() // new
+	defer models.DB.Close()
 
+	go utils.CheckOffline()
+
+	r.GET("/wallets", controllers.FindWallets) // only use when you want to export all your wallets
 	r.POST("/wallet", controllers.UploadWallet)
 	r.POST("/walletform", controllers.UploadWalletFile)
-	r.GET("/wallet/:address", controllers.FindWallet)
-	r.GET("/generateid/:address", controllers.FindWallet)
-	r.GET("/wallet/", controllers.FindIdleWallet)
+	r.GET("/wallets/:address", controllers.FindWallet)
+	r.GET("/wallet/idle", controllers.FindIdleWallet)
+	r.GET("/generateid/:address", controllers.GenerateID)
 
 	r.Run("0.0.0.0:30050")
 }

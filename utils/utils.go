@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"nkn-node-manager/models"
 	"os"
 	"strconv"
 	"sync/atomic"
@@ -29,7 +30,7 @@ func Check_nkn_nodes() {
 			time.Sleep(5 * time.Second)
 		}
 		go func(ip string) {
-			msg, ok := SendGetnodestate(ip)
+			msg, ok := GetNodeState(ip)
 			if ok {
 				atomic.AddUint32(&succ, 1)
 			} else {
@@ -72,14 +73,32 @@ func GetIpList() ([]string, error) {
 	return ipList, nil
 }
 
-func SendGetnodestate(ip string) (string, bool) {
-	// getnodestate (POST http://165.232.155.126:30003/)
+func GetIpListFromDB() ([]string, error) {
+	var ipList []string
+	inFile, err := os.Open(IP_FILE)
+	if err != nil {
+		return nil, err
+	}
+	defer inFile.Close()
+
+	scanner := bufio.NewScanner(inFile)
+	for scanner.Scan() {
+		ip := scanner.Text()
+		if checkIPAddress(ip) {
+			ipList = append(ipList, ip)
+		}
+		//fmt.Println(scanner.Text()) // the line
+	}
+	return ipList, nil
+}
+
+func GetNodeState(ip string) (string, bool) {
 
 	jsonBody := []byte(`{"jsonrpc": "2.0","method": "getnodestate","id": "1","params": {}}`)
 	body := bytes.NewBuffer(jsonBody)
 
 	// Create client
-	client := &http.Client{Timeout: 20 * time.Second}
+	client := &http.Client{Timeout: 10 * time.Second}
 
 	url := fmt.Sprintf("http://%s:30003", ip)
 
@@ -96,6 +115,7 @@ func SendGetnodestate(ip string) (string, bool) {
 		if err == nil {
 			break
 		}
+		time.Sleep(1 * time.Second)
 	}
 
 	if err != nil {
@@ -121,10 +141,10 @@ func SendGetnodestate(ip string) (string, bool) {
 	} else {
 		e, ok := result["error"]
 		if !ok {
-			return fmt.Sprintf("ip: %-15s | err message: %s", ip, "can not access"), false
+			return fmt.Sprintf("ip: %-15s | err message: %s", ip, "can not access"), true
 		}
 		errorMsg := e.(map[string]interface{})["message"]
-		return fmt.Sprintf("ip: %-15s | err message: %s", ip, errorMsg), false
+		return fmt.Sprintf("ip: %-15s | err message: %s", ip, errorMsg), true
 	}
 }
 
@@ -136,4 +156,21 @@ func checkIPAddress(ip string) bool {
 		return false
 	}
 	return true
+}
+
+func CheckOffline() {
+	for {
+		var wallets []models.Wallet
+		models.DB.Find(&wallets)
+		for _, w := range wallets {
+			var ww models.Wallet
+			_, active := GetNodeState(w.IP)
+			if !active {
+				models.DB.Where("ip = ?", w.IP).First(&ww).Update("idle", true)
+			} else {
+				models.DB.Where("ip = ?", w.IP).First(&ww).Update("last-active", time.Now().Unix())
+			}
+		}
+		time.Sleep(10 * time.Second)
+	}
 }
