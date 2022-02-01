@@ -27,7 +27,7 @@ func FindWallets(c *gin.Context) {
 	var wallets []models.Wallet
 	models.DB.Find(&wallets)
 
-	c.JSON(http.StatusOK, gin.H{"data": wallets})
+	c.JSON(http.StatusOK, gin.H{"wallets": wallets})
 }
 
 // GenerateID GET /generate/:address
@@ -74,7 +74,7 @@ func FindWallet(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": wallet})
+	c.JSON(http.StatusOK, gin.H{"wallet": wallet})
 }
 
 // FindIdleWallet GET /wallets/free
@@ -88,7 +88,20 @@ func FindIdleWallet(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": wallet})
+	c.JSON(http.StatusOK, gin.H{"idle": wallet})
+}
+
+// DeleteWallet GET /remove/:address
+// Remove a wallet
+func DeleteWallet(c *gin.Context) {
+	// Get model if exist
+	var wallet models.Wallet
+	if err := models.DB.Where("address = ?", c.Param("address")).Delete(&wallet).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"delete": c.Param("address")})
 }
 
 // UploadWallet POST /wallet
