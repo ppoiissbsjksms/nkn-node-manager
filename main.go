@@ -16,12 +16,12 @@ func main() {
 
 	go utils.CheckOffline()
 
-	//r.GET("/wallets", controllers.FindWallets) // only use when you want to export all your wallets
+	//r.GET("/wallets", controllers.FindWallets) // only when you want to export all your wallets
 	r.POST("/wallet", controllers.UploadWallet)
 	r.POST("/walletform", controllers.UploadWalletFile)
 	r.GET("/wallets/:address", controllers.FindWallet)
 	r.GET("/wallet/idle", controllers.FindIdleWallet)
-	r.GET("/generateid/:address", controllers.GenerateID)
+	//r.GET("/generateid/:address", controllers.GenerateID)
 
 	r.Run("0.0.0.0:30050")
 }
