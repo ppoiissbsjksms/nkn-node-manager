@@ -18,7 +18,7 @@ type CreateWalletInput struct {
 	PassWord   string `json:"password" binding:"required"`
 	IP         string `json:"ip"`
 	Idle       bool   `json:"idle"`
-	LastActive uint   `json:"lastActive"`
+	LastUpdate uint   `json:"lastUpdate"`
 }
 
 // FindWallets GET /wallets
@@ -83,7 +83,7 @@ func FindIdleWallet(c *gin.Context) {
 	// Get model if exist
 	var wallet models.Wallet
 	ts := time.Now().Unix()
-	if err := models.DB.Where("idle = true AND last_active < ?", ts-3600).First(&wallet).Error; err != nil {
+	if err := models.DB.Where("idle = true AND lastUpdate < ?", ts-3600).First(&wallet).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -121,7 +121,7 @@ func UploadWallet(c *gin.Context) {
 		return
 	}
 	wallet := models.Wallet{KeyStore: input.KeyStore, PassWord: input.PassWord, IP: c.ClientIP(),
-		Idle: false, Address: w.Address(), PublicKey: hex.EncodeToString(w.PubKey()), LastActive: time.Now().Unix()}
+		Idle: false, Address: w.Address(), PublicKey: hex.EncodeToString(w.PubKey()), LastUpdate: time.Now().Unix()}
 	models.DB.Create(&wallet)
 
 	c.JSON(http.StatusOK, gin.H{"data": wallet})
@@ -165,8 +165,8 @@ func UploadWalletFile(c *gin.Context) {
 		return
 	}
 	wallet := models.Wallet{KeyStore: walletJson.String(), PassWord: p, IP: c.ClientIP(),
-		Idle: false, Address: w.Address(), PublicKey: hex.EncodeToString(w.PubKey()), LastActive: time.Now().Unix()}
+		Idle: false, Address: w.Address(), PublicKey: hex.EncodeToString(w.PubKey()), LastUpdate: time.Now().Unix()}
 	models.DB.Create(&wallet)
 
-	c.JSON(http.StatusOK, gin.H{"data": wallet.Address})
+	c.JSON(http.StatusOK, gin.H{"upload": wallet.Address})
 }

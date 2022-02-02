@@ -8,5 +8,5 @@ type Wallet struct {
 	Address    string `json:"address" gorm:"primary_key"`
 	PublicKey  string `json:"publicKey"`
 	Idle       bool   `json:"idle"`
-	LastActive int64  `json:"lastActive"`
+	LastUpdate int64  `json:"lastUpdate"`
 }
