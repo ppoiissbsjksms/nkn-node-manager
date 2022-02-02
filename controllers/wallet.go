@@ -164,6 +164,12 @@ func UploadWalletFile(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	var exist models.Wallet
+	err = models.DB.Where("address = ?", w.Address()).First(&exist).Update("ip", c.ClientIP()).Error
+	if err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "wallet duplicated"})
+		return
+	}
 	wallet := models.Wallet{KeyStore: walletJson.String(), PassWord: p, IP: c.ClientIP(),
 		Idle: false, Address: w.Address(), PublicKey: hex.EncodeToString(w.PubKey()), LastUpdate: time.Now().Unix()}
 	models.DB.Create(&wallet)
