@@ -164,7 +164,8 @@ func CheckOffline() {
 		models.DB.Find(&wallets)
 		for _, w := range wallets {
 			var ww models.Wallet
-			_, active := GetNodeState(w.IP)
+			err, active := GetNodeState(w.IP)
+			fmt.Println(err)
 			if !active {
 				models.DB.Where("ip = ?", w.IP).First(&ww).Update("idle", true)
 			} else {
