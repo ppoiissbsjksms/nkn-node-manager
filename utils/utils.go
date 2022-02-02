@@ -164,12 +164,20 @@ func CheckOffline() {
 		models.DB.Find(&wallets)
 		for _, w := range wallets {
 			var ww models.Wallet
-			err, active := GetNodeState(w.IP)
-			fmt.Println(err)
+			error, active := GetNodeState(w.IP)
+			fmt.Println(error)
 			if !active {
-				models.DB.Where("ip = ?", w.IP).First(&ww).Update("idle", true)
+				if err := models.DB.Where("ip = ?", w.IP).First(&ww).Update("idle", true).Error; err != nil {
+					fmt.Println("not active err:", err)
+				}
 			} else {
-				models.DB.Where("ip = ?", w.IP).First(&ww).Update("last-active", time.Now().Unix())
+				ts := time.Now().Unix()
+				if err := models.DB.Where("ip = ?", w.IP).First(&ww).Update("lastActive", ts).Error; err != nil {
+					fmt.Println("active err:", err)
+				}
+				if err := models.DB.Where("ip = ?", w.IP).First(&ww).Update("idle", false).Error; err != nil {
+					fmt.Println("active err:", err)
+				}
 			}
 		}
 		time.Sleep(10 * time.Second)

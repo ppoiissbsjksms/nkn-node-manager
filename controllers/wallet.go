@@ -18,7 +18,7 @@ type CreateWalletInput struct {
 	PassWord   string `json:"password" binding:"required"`
 	IP         string `json:"ip"`
 	Idle       bool   `json:"idle"`
-	LastActive uint   `json:"last-active"`
+	LastActive uint   `json:"lastActive"`
 }
 
 // FindWallets GET /wallets
