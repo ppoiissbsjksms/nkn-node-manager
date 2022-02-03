@@ -83,7 +83,7 @@ func FindIdleWallet(c *gin.Context) {
 	// Get model if exist
 	var wallet models.Wallet
 	ts := time.Now().Unix()
-	err := models.DB.Where("idle = true AND last_update < ?", ts-3600).First(&wallet).Update("idle", false).Error
+	err := models.DB.Where("idle = true AND last_update < ?", ts-3600).First(&wallet).Update(models.Wallet{Idle: false, IP: c.ClientIP()}).Error
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
