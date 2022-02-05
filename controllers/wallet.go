@@ -94,6 +94,20 @@ func FindIdleWallet(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"idle": wallet})
 }
 
+// FindActiveWallet GET /wallets/free
+// Find a wallet
+func FindActiveWallets(c *gin.Context) {
+	// Get model if exist
+	var wallets []models.Wallet
+	ts := time.Now().Unix()
+	err := models.DB.Where("idle = false AND last_update > ?", ts-3600).Find(&wallets).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"active": wallets})
+}
+
 // DeleteWallet GET /remove/:address
 // Remove a wallet
 func DeleteWallet(c *gin.Context) {
