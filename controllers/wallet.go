@@ -94,8 +94,8 @@ func FindIdleWallet(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"idle": wallet})
 }
 
-// FindActiveWallet GET /wallets/free
-// Find a wallet
+// FindActiveWallets GET /wallets/active
+// Find an active wallet
 func FindActiveWallets(c *gin.Context) {
 	// Get model if exist
 	var wallets []models.Wallet

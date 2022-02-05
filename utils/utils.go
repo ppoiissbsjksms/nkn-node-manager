@@ -171,7 +171,7 @@ func CheckOffline() {
 				}
 			} else {
 				ts := time.Now().Unix()
-				if err := models.DB.Where("address = ?", w.Address).First(&ww).Update("lastUpdate", ts).Error; err != nil {
+				if err := models.DB.Where("address = ?", w.Address).First(&ww).Update("last_update", ts).Error; err != nil {
 					//fmt.Println("active err:", err)
 				}
 				if err := models.DB.Where("address = ?", w.Address).First(&ww).Update("idle", false).Error; err != nil {
