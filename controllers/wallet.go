@@ -90,6 +90,7 @@ func FindIdleWallet(c *gin.Context) {
 	}
 	wallet.Idle = false
 	wallet.IP = c.ClientIP()
+	wallet.LastUpdate = ts
 	models.DB.Save(&wallet)
 	c.JSON(http.StatusOK, gin.H{"idle": wallet})
 }
