@@ -79,7 +79,7 @@ cat wallet.txt | jq -r .idle.keystore > wallet.json
 cat wallet.txt | jq -r .idle.password > wallet.pawd
 
 
-##注意事项
+## 注意事项
 
 如果你没有从钱包所在节点的IP上传钱包，会导致无法正常判断钱包状态（上传IP与钱包所在真实节点IP不一致），这种情况下需要自己将所有机器中的钱包删除后重新从 API 获取钱包
 
