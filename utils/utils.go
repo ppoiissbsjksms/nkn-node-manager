@@ -110,14 +110,7 @@ func GetNodeState(ip string) (string, bool) {
 
 	// Fetch Request
 	resp := new(http.Response)
-	for i := 3; i > 0; i-- {
-		resp, err = client.Do(req)
-		if err == nil {
-			break
-		}
-		time.Sleep(1 * time.Second)
-	}
-
+	resp, err = client.Do(req)
 	if err != nil {
 		return fmt.Sprintf("ip: %-15s | err message: %s", ip, err), false
 	}
