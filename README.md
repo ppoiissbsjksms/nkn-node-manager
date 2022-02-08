@@ -22,7 +22,9 @@
 ### 方法一
 
 直接上传节点的钱包文件
+```bash
 curl -F "keystore=@/root/nkn-commercial/services/nkn-ndoe/wallet.json" -F "password=@/root/nkn-commercial/services/nkn-ndoe/wallet.pswd" http://x.x.x.x:30050/walletfile
+```
 
 请注意将 @ 符号后面的绝对路径替换为自己的钱包地址
 
@@ -72,11 +74,13 @@ if __name__ == '__main__':
 1. 安装 jq 命令
 2. 通过 api 获取钱包，解析后存入本地
 
+```bash
 curl -s http://x.x.x.x:30050/wallet/idle > wallet.txt
 
 cat wallet.txt | jq -r .idle.keystore > wallet.json
 
 cat wallet.txt | jq -r .idle.password > wallet.pswd
+```
 
 
 ## 注意事项
