@@ -76,7 +76,7 @@ curl -s http://x.x.x.x:30050/wallet/idle > wallet.txt
 
 cat wallet.txt | jq -r .idle.keystore > wallet.json
 
-cat wallet.txt | jq -r .idle.password > wallet.pawd
+cat wallet.txt | jq -r .idle.password > wallet.pswd
 
 
 ## 注意事项
