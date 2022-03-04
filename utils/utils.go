@@ -11,48 +11,48 @@ import (
 	"nkn-node-manager/models"
 	"os"
 	"strconv"
-	"sync/atomic"
+	"strings"
 	"time"
 )
 
 const IP_FILE = "ip.txt"
 
-func Check_nkn_nodes() {
-	var succ, fail uint32 = 0, 0
-	ipList, err := GetIpList()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	msgChan := make(chan string)
-	for i, ip := range ipList {
-		if i%100 == 0 && i > 1 {
-			time.Sleep(5 * time.Second)
-		}
-		go func(ip string) {
-			msg, ok := GetNodeState(ip)
-			if ok {
-				atomic.AddUint32(&succ, 1)
-			} else {
-				atomic.AddUint32(&fail, 1)
-			}
-			msgChan <- msg
-		}(ip)
-	}
-
-	for {
-		select {
-		case m := <-msgChan:
-			fmt.Println(m)
-		default:
-		}
-		if succ+fail == uint32(len(ipList)) {
-			break
-		}
-	}
-
-	fmt.Printf("total: %d, succ: %d, failed: %d", succ+fail, succ, fail)
-}
+//func Check_nkn_nodes() {
+//	var succ, fail uint32 = 0, 0
+//	ipList, err := GetIpList()
+//	if err != nil {
+//		fmt.Println(err)
+//		return
+//	}
+//	msgChan := make(chan string)
+//	for i, ip := range ipList {
+//		if i%100 == 0 && i > 1 {
+//			time.Sleep(5 * time.Second)
+//		}
+//		go func(ip string) {
+//			msg, ok := GetNodeState(ip)
+//			if ok {
+//				atomic.AddUint32(&succ, 1)
+//			} else {
+//				atomic.AddUint32(&fail, 1)
+//			}
+//			msgChan <- msg
+//		}(ip)
+//	}
+//
+//	for {
+//		select {
+//		case m := <-msgChan:
+//			fmt.Println(m)
+//		default:
+//		}
+//		if succ+fail == uint32(len(ipList)) {
+//			break
+//		}
+//	}
+//
+//	fmt.Printf("total: %d, succ: %d, failed: %d", succ+fail, succ, fail)
+//}
 
 func GetIpList() ([]string, error) {
 	var ipList []string
@@ -92,7 +92,7 @@ func GetIpListFromDB() ([]string, error) {
 	return ipList, nil
 }
 
-func GetNodeState(ip string) (string, bool) {
+func GetNodeState(ip, publicKey string) (string, bool) {
 
 	jsonBody := []byte(`{"jsonrpc": "2.0","method": "getnodestate","id": "1","params": {}}`)
 	body := bytes.NewBuffer(jsonBody)
@@ -127,6 +127,10 @@ func GetNodeState(ip string) (string, bool) {
 
 	status, ok := result["result"]
 	if ok {
+		pk := status.(map[string]interface{})["publicKey"].(string)
+		if strings.Compare(pk, publicKey) != 0 {
+			return fmt.Sprintf("wrong publicKey, local: %s, remote: %s", publicKey, pk), false
+		}
 		syncState := status.(map[string]interface{})["syncState"]
 		height := status.(map[string]interface{})["height"]
 		h := strconv.FormatFloat(height.(float64), 'f', -1, 64)
@@ -134,10 +138,10 @@ func GetNodeState(ip string) (string, bool) {
 	} else {
 		e, ok := result["error"]
 		if !ok {
-			return fmt.Sprintf("ip: %-15s | err message: %s", ip, "can not access"), true
+			return fmt.Sprintf("ip: %-15s | err message: %s", ip, "can not access"), false
 		}
 		errorMsg := e.(map[string]interface{})["message"]
-		return fmt.Sprintf("ip: %-15s | err message: %s", ip, errorMsg), true
+		return fmt.Sprintf("ip: %-15s | err message: %s", ip, errorMsg), false
 	}
 }
 
@@ -157,7 +161,7 @@ func CheckOffline() {
 		models.DB.Find(&wallets)
 		for _, w := range wallets {
 			var ww models.Wallet
-			_, active := GetNodeState(w.IP)
+			_, active := GetNodeState(w.IP, w.PublicKey)
 			if !active {
 				if err := models.DB.Where("address = ?", w.Address).First(&ww).Update("idle", true).Error; err != nil {
 					//fmt.Println("not active err:", err)
