@@ -8,10 +8,13 @@ import (
 	"net/http"
 	"nkn-node-manager/models"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+var Lock sync.Mutex
 
 type CreateWalletInput struct {
 	KeyStore   string `json:"keystore" binding:"required"`
@@ -80,6 +83,8 @@ func FindWallet(c *gin.Context) {
 // FindIdleWallet GET /wallets/free
 // Find a wallet
 func FindIdleWallet(c *gin.Context) {
+	Lock.Lock()
+	defer Lock.Unlock()
 	// Get model if exist
 	var wallet models.Wallet
 	ts := time.Now().Unix()
