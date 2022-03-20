@@ -23,7 +23,7 @@
 
 直接上传节点的钱包文件
 ```bash
-curl -F "keystore=@/root/nkn-commercial/services/nkn-ndoe/wallet.json" -F "password=@/root/nkn-commercial/services/nkn-ndoe/wallet.pswd" http://x.x.x.x:30050/walletfile
+curl -F "keystore=@/root/nkn-commercial/services/nkn-node/wallet.json" -F "password=@/root/nkn-commercial/services/nkn-node/wallet.pswd" http://x.x.x.x:30050/walletfile
 ```
 
 请注意将 @ 符号后面的绝对路径替换为自己的钱包地址
