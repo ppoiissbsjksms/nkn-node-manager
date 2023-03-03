@@ -6,7 +6,12 @@ package models
 )
 */
 
-import _ "github.com/mattn/go-sqlite3"
+import (
+	"github.com/jinzhu/gorm"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+
 
 
 var DB *gorm.DB
